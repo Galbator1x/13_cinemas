@@ -32,31 +32,18 @@ def parse_afisha_list(raw_html, min_cinemas_count):
 
 
 def fetch_movie_info(movie_title):
-    req_movies = requests.get('http://api.kinopoisk.cf/searchFilms?keyword={}'.
-                              format(movie_title)).json()
-    if req_movies['pagesCount'] == 0:
-        return {'rating': 0, 'votes': 0}
-
-    # looking for the right film in response of kinopoisk
-    movie_title_set = set(re.findall(r'\w+|\d+', movie_title.lower()))
-    for movie_info in req_movies['searchFilms']:
-        title_on_kinopoisk_set = set(re.findall(r'\w+|\d+',
-                                                movie_info['nameRU'].lower()))
-        if movie_title_set == title_on_kinopoisk_set:
-            movie_rating, movie_votes = parse_rating_and_votes(movie_info)
-            return {'rating': movie_rating,
-                    'votes': movie_votes}
-
-
-def parse_rating_and_votes(movie_info):
+    url = 'https://www.kinopoisk.ru/index.php'
+    payload = {'kp_query': movie_title, 'first': 'yes'}
+    movie_html = requests.get(url, params=payload).text
+    soup = BeautifulSoup(movie_html, 'html.parser')
     try:
-        rating, votes = movie_info['rating'].split(' ', maxsplit=1)
-        movie_rating = float(rating)
-        movie_votes = votes[1:-1]  # remove redundant parentheses
-    except (KeyError, ValueError):
-        # if rating and votes does not exists
+        movie_rating = float(soup.find('span', class_='rating_ball').text)
+        movie_votes = soup.find('span', class_='ratingCount').text
+        movie_votes = ''.join(re.findall(r'\d+', movie_votes))
+    except AttributeError:
         movie_rating, movie_votes = 0, 0
-    return movie_rating, movie_votes
+    return {'rating': movie_rating,
+            'votes': movie_votes}
 
 
 def output_movies_to_console(movies):
