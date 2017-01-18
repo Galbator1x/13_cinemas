@@ -26,4 +26,3 @@ Requirements
 ------------
 
 - Python >= 3.4
-- beautifulsoup4==4.5.1

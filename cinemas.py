@@ -3,7 +3,6 @@ import re
 
 from bs4 import BeautifulSoup
 
-
 MOVIES_COUNT = 10
 AFISHA_SCHEDULE_URL = 'http://www.afisha.ru/msk/schedule_cinema/'
 
@@ -27,6 +26,7 @@ def parse_afisha_list(raw_html, min_cinemas_count):
             continue
         movies_dict[movie_title] = fetch_movie_info(movie_title)
         movies_dict[movie_title]['cinemas_count'] = cinemas_count
+        print(movie_title, cinemas_count)
 
     return movies_dict
 
@@ -58,5 +58,6 @@ def output_movies_to_console(movies):
 
 if __name__ == '__main__':
     movies = parse_afisha_list(fetch_afisha_page(),
-                               int(input('Enter the minimum number of cinemas for the film: ')))
+                               int(input(
+                                   'Enter the minimum number of cinemas for the film: ')))
     output_movies_to_console(movies)
