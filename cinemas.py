@@ -15,9 +15,7 @@ def parse_afisha_list(raw_html, min_cinemas_count):
     soup = BeautifulSoup(raw_html, 'html.parser')
     movies = soup.find_all('h3', class_='usetags')
     movie_titles = [movie.find('a').text for movie in movies]
-
-    cinemas = soup.find(id='schedule')
-    cinemas = cinemas.find_all('tbody')
+    cinemas = soup.find(id='schedule').find_all('tbody')
     cinemas_count = [len(cinema.find_all('tr')) for cinema in cinemas]
 
     movies_dict = {}
@@ -26,8 +24,6 @@ def parse_afisha_list(raw_html, min_cinemas_count):
             continue
         movies_dict[movie_title] = fetch_movie_info(movie_title)
         movies_dict[movie_title]['cinemas_count'] = cinemas_count
-        print(movie_title, cinemas_count)
-
     return movies_dict
 
 
@@ -42,8 +38,7 @@ def fetch_movie_info(movie_title):
         movie_votes = ''.join(re.findall(r'\d+', movie_votes))
     except AttributeError:
         movie_rating, movie_votes = 0, 0
-    return {'rating': movie_rating,
-            'votes': movie_votes}
+    return {'rating': movie_rating, 'votes': movie_votes}
 
 
 def output_movies_to_console(movies):
